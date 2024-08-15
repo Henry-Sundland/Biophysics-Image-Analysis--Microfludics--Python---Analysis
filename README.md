@@ -8,6 +8,7 @@
  1.) Basic Tiff reader and 'movie' player
  
  2.) Tiff reader and 'movie' player that subtracts noise
+ 
  3.) Particle Tracking 
 
 
