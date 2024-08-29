@@ -153,7 +153,6 @@ def track_particle(movie, initial_masking_value=3, bool_ex=1):
     return xloc, yloc, R_g_all, avg_intensity_for_bp, intensity_for_bp_uncertainty
    
 # This function calculates the mean squared displacement in the x, y and r directions
-# mean squared displacement values are negative, but they look good...just negative lol...look over equations with chatgpt or somethig
 def msd_calculator(xloc, yloc):
     
     # based off of the x and y locations of particle, this function calculates the mean squared displacement via
@@ -308,10 +307,27 @@ bp_conversion = float(input("Enter the intensity calibration in bp to find molec
 
 # Initialize an empty DataFrame to store results
 results_df = pd.DataFrame(columns=['Filename', 'Diffusion (um^2/s)', 'Diffusion Uncertainty (um^2/s)', 'Rg (um)', 'Rg_uncertainty (um)', 'Molecular Weight (bp)', 'Molecular Weight Uncertainty (bp)'])
+msd_df = pd.DataFrame(columns = ['Filename', 'msd_x (um^2)', 'msd_y (um^2)', 'msd_r (um^2)' ])
+
+
+# INPUT YO STUFF HERE!!!!!!!!!
+
 
 # Specify the directory containing TIFF files
-directory = 'path_to_files_here'  # enter path to your directory of .tiff files here
-output_excel = 'path_to_files_here/analysis_results.xlsx'  # Specify the output Excel file..should be path above with addition of /(desired excel file name).xlsx or other excel file extension name
+directory = ''  # Adjust this path to your directory containing the .tiff files
+
+# out to excel and pickle files for all data except for msd curves
+output_excel = ''  # Specify the output Excel file path and name it...like 'directory path/name.csv
+output_pickle = ''  # Specify the output pickle file like 'directory path/name.pkl
+
+# output to excel and pickle files for msd curves for molecules
+output_excel_msd = ''  # Specify the output Excel file path of msd values and name it...like 'directory path/name.csv
+output_pickle_msd = ''  # Specify the output pickle file for msd values like 'directory path/name.pkl
+
+
+
+
+
 
 # Loop through each file in the directory
 for filename in os.listdir(directory):
@@ -319,7 +335,7 @@ for filename in os.listdir(directory):
         filepath = os.path.join(directory, filename)
 
 
-        #filename = 'C:/Users/Detective Disco/Desktop/matlab_codes\slowbead3.tif'
+        
         tif = tiff.TiffFile(filepath)
         movie = tif.asarray()  # Load the movie
         tif.close()
@@ -362,9 +378,31 @@ for filename in os.listdir(directory):
         # Concatenate the new row to the results DataFrame
         results_df = pd.concat([results_df, new_row], ignore_index=True)
 
-        # Save the results after each file is processed
-        results_df.to_excel(output_excel, index=False)
 
+        
+
+
+       
+
+        # for msd stuff
+        new_msd_row = pd.DataFrame({'Filename: ': [filename]*len(msd_x),'msd_x (um^2)': msd_x, 'msd_y (um^2)': msd_y, 'msd_r (um^2)': msd_r})
+        new_msd_row = new_msd_row.T
+    
+
+        msd_df = pd.concat([msd_df, new_msd_row], ignore_index = True)
+        
+
+       
+# Save DataFrame to CSV
+results_df.to_csv(output_excel, index=False)
+
+# Save DataFrame to a pickle file
+results_df.to_pickle(output_pickle)
+
+
+msd_df.to_csv(output_excel_msd, index = False)
+msd_df.to_pickle(output_pickle_msd)
+        
 
 ################################################################################################################################################################
 ######################################################################
