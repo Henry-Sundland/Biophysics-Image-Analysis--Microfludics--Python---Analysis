@@ -107,8 +107,8 @@ def track_particle(movie, initial_masking_value=3, bool_ex=1):
             movie_3[movie_3 > 0] = 1
 
             img = movie_2 * movie_3
-            # Store the average intensity of the molecule on the current frame
-            intensity_for_bp[k] = np.mean(img)
+            # Store the sum of the intensity of the molecule on the current frame, which is proportional to its molecular weight
+            intensity_for_bp[k] = np.sum(img)
 
             # working on this shit rn
 
@@ -131,7 +131,7 @@ def track_particle(movie, initial_masking_value=3, bool_ex=1):
             ax.plot(xloc[k], yloc[k], 'ro')
             fig.canvas.draw()
             fig.canvas.flush_events()
-            plt.pause(0.001)
+            plt.pause(0.0001)
             ax.clear()
 
         plt.ioff()
@@ -307,22 +307,20 @@ bp_conversion = float(input("Enter the intensity calibration in bp to find molec
 
 # Initialize an empty DataFrame to store results
 results_df = pd.DataFrame(columns=['Filename', 'Diffusion (um^2/s)', 'Diffusion Uncertainty (um^2/s)', 'Rg (um)', 'Rg_uncertainty (um)', 'Molecular Weight (bp)', 'Molecular Weight Uncertainty (bp)'])
-msd_df = pd.DataFrame(columns = ['Filename', 'msd_x (um^2)', 'msd_y (um^2)', 'msd_r (um^2)' ])
+msd_df = pd.DataFrame(columns = ['Filename', 'msd_x (um^2)', 'msd_y (um^2)', 'msd_r (um^2)' , 'time lag (sec)'])
 
-
-# INPUT YO STUFF HERE!!!!!!!!!
-
+#Put yo stuff here!!!
 
 # Specify the directory containing TIFF files
-directory = ''  # Adjust this path to your directory containing the .tiff files
+directory = ''  # Adjust this path to your directory
 
 # out to excel and pickle files for all data except for msd curves
-output_excel = ''  # Specify the output Excel file path and name it...like 'directory path/name.csv
-output_pickle = ''  # Specify the output pickle file like 'directory path/name.pkl
+output_excel = ''  # Specify the output Excel file; has to be .csv ....I know lol
+output_pickle = ''  # Specify the output pickle file
 
 # output to excel and pickle files for msd curves for molecules
-output_excel_msd = ''  # Specify the output Excel file path of msd values and name it...like 'directory path/name.csv
-output_pickle_msd = ''  # Specify the output pickle file for msd values like 'directory path/name.pkl
+output_excel_msd = ''  # Specify the output Excel file has to be .xlsx ... i know, weird lol
+output_pickle_msd = ''  # Specify the output pickle file
 
 
 
@@ -350,7 +348,7 @@ for filename in os.listdir(directory):
         D, D_uncertainty = diffusion_finder(msd_x, msd_y, msd_r, frame_indicies)
 
         # converting everything to real space units in micrometers and that
-        xloc,yloc,R_g_all = xloc*(pixel_conversion/1000), yloc*(pixel_conversion/1000), R_g_all*(pixel_conversion/1000) #converts values to micrometers
+        xloc,yloc= xloc*(pixel_conversion/1000), yloc*(pixel_conversion/1000) #converts values to micrometers
         msd_x, msd_y, msd_r = msd_x*(pixel_conversion / 1000)**2. ,msd_y*(pixel_conversion / 1000)**2, msd_r*(pixel_conversion / 1000)**2
         D, D_uncertainty = D*fps*(pixel_conversion / 1000)**2, D_uncertainty*fps*(pixel_conversion / 1000)**2
 
@@ -385,23 +383,24 @@ for filename in os.listdir(directory):
        
 
         # for msd stuff
-        new_msd_row = pd.DataFrame({'Filename: ': [filename]*len(msd_x),'msd_x (um^2)': msd_x, 'msd_y (um^2)': msd_y, 'msd_r (um^2)': msd_r})
+        new_msd_row = pd.DataFrame({'Filename: ': [filename]*len(msd_x),'msd_x (um^2)': msd_x, 'msd_y (um^2)': msd_y, 'msd_r (um^2)': msd_r, 'time lag (sec)': time_vec})
         new_msd_row = new_msd_row.T
     
 
         msd_df = pd.concat([msd_df, new_msd_row], ignore_index = True)
-        
-
-       
-# Save DataFrame to CSV
-results_df.to_csv(output_excel, index=False)
-
-# Save DataFrame to a pickle file
-results_df.to_pickle(output_pickle)
 
 
-msd_df.to_csv(output_excel_msd, index = False)
-msd_df.to_pickle(output_pickle_msd)
+
+
+        # Save DataFrame to CSV
+        results_df.to_csv(output_excel, index=False)
+
+        # Save DataFrame to a pickle file
+        results_df.to_pickle(output_pickle)
+
+
+        msd_df.to_csv(output_excel_msd, index = False)
+        msd_df.to_pickle(output_pickle_msd)
         
 
 ################################################################################################################################################################
