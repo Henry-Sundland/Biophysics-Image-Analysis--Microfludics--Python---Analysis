@@ -44,7 +44,7 @@ def calculate_gyration_tensor(img, xcom, ycom, Itot, xdim, ydim):
     G = G / Itot  # Normalize by total intensity
 
     eigenvalues, _ = np.linalg.eig(G)
-    R_g = np.sqrt(eigenvalues[0] + eigenvalues[1]) * 172.4 / 1000
+    R_g = np.sqrt(eigenvalues[0] + eigenvalues[1]) 
 
     return G, R_g
 
@@ -348,7 +348,7 @@ for filename in os.listdir(directory):
         D, D_uncertainty = diffusion_finder(msd_x, msd_y, msd_r, frame_indicies)
 
         # converting everything to real space units in micrometers and that
-        xloc,yloc= xloc*(pixel_conversion/1000), yloc*(pixel_conversion/1000) #converts values to micrometers
+        xloc,yloc, R_g_all= xloc*(pixel_conversion/1000), yloc*(pixel_conversion/1000), R_g_all*(pixel_conversion/1000) #converts values to micrometers
         msd_x, msd_y, msd_r = msd_x*(pixel_conversion / 1000)**2. ,msd_y*(pixel_conversion / 1000)**2, msd_r*(pixel_conversion / 1000)**2
         D, D_uncertainty = D*fps*(pixel_conversion / 1000)**2, D_uncertainty*fps*(pixel_conversion / 1000)**2
 
